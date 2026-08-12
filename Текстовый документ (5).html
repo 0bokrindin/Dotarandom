@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dota Random</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            background: #0b0e1a;
+            background-image: radial-gradient(ellipse at 20% 50%, #1a1f3a 0%, #0b0e1a 70%);
+        }
+
+        .container {
+            max-width: 880px;
+            width: 100%;
+            background: rgba(18, 25, 50, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 36px 40px 32px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.95rem;
+            letter-spacing: 4px;
+            margin-top: 2px;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            position: relative;
+            border: none;
+            padding: 18px 12px;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 60%);
+            pointer-events: none;
+        }
+        .btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 0 rgba(0, 0, 0, 0.25), 0 16px 40px rgba(0, 0, 0, 0.5);
+        }
+        .btn:active {
+            transform: translateY(4px) scale(0.98);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+            transition-duration: 0.08s;
+        }
+
+        .btn-combo {
+            background: linear-gradient(145deg, #4a6fa5, #3a5a8a);
+        }
+        .btn-combo:hover {
+            background: linear-gradient(145deg, #5a7fb5, #4a6fa5);
+        }
+        .btn-build {
+            background: linear-gradient(145deg, #4a8a5a, #3a7a4a);
+        }
+        .btn-build:hover {
+            background: linear-gradient(145deg, #5a9a6a, #4a8a5a);
+        }
+        .btn-position {
+            background: linear-gradient(145deg, #8a7a4a, #7a6a3a);
+        }
+        .btn-position:hover {
+            background: linear-gradient(145deg, #9a8a5a, #8a7a4a);
+        }
+        .btn-challenge {
+            background: linear-gradient(145deg, #7a4a8a, #6a3a7a);
+        }
+        .btn-challenge:hover {
+            background: linear-gradient(145deg, #8a5a9a, #7a4a8a);
+        }
+        .btn-random-all {
+            background: linear-gradient(145deg, #5a6a7a, #4a5a6a);
+            grid-column: 1 / -1;
+        }
+        .btn-random-all:hover {
+            background: linear-gradient(145deg, #6a7a8a, #5a6a7a);
+        }
+
+        .result-box {
+            background: rgba(10, 16, 34, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 28px 30px;
+            min-height: 180px;
+            border-left: 5px solid #6a8aaa;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
+        }
+
+        .result-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .result-content {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #f0f4ff;
+            min-height: 60px;
+        }
+
+        .build-hero-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .build-hero-header img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: #141c30;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .build-hero-header .hero-label {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f0f4ff;
+        }
+        .build-hero-header .build-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: 4px;
+        }
+
+        .heroes-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px 30px;
+            margin-top: 6px;
+        }
+
+        .hero-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 18px 8px 8px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        .hero-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.03);
+        }
+        .hero-card img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: #141c30;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .hero-card:hover img {
+            border-color: #6a8aaa;
+            box-shadow: 0 0 24px rgba(106, 138, 170, 0.3);
+        }
+        .hero-card .hero-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #eef3ff;
+        }
+
+        .combo-name {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .items-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .item-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 50, 90, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px 6px 6px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #c8daff;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s ease;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        .item-badge:hover {
+            background: rgba(50, 80, 140, 0.6);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .item-badge img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #0a1424;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .item-badge.shard {
+            background: rgba(200, 150, 50, 0.3);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+        .item-badge.shard:hover {
+            background: rgba(200, 150, 50, 0.5);
+        }
+
+        .result-divider {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin: 16px 0;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .position-display {
+            font-size: 1.8rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px 16px;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .result-content {
+                font-size: 1.2rem;
+            }
+            .hero-card {
+                padding: 4px 12px 4px 4px;
+            }
+            .hero-card img {
+                width: 40px;
+                height: 40px;
+            }
+            .hero-card .hero-name {
+                font-size: 0.9rem;
+            }
+            .btn {
+                padding: 16px 10px;
+                font-size: 0.95rem;
+            }
+            .build-hero-header .hero-label {
+                font-size: 1.2rem;
+            }
+            .build-hero-header img {
+                width: 42px;
+                height: 42px;
+            }
+            .item-badge {
+                font-size: 0.75rem;
+                padding: 4px 12px 4px 4px;
+            }
+            .item-badge img {
+                width: 24px;
+                height: 24px;
+            }
+            .position-display {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .heroes-row {
+                gap: 12px;
+            }
+            .hero-card {
+                width: 100%;
+                justify-content: center;
+            }
+            .build-hero-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>DOTA RANDOM</h1>
+            <p>СВЯЗКИ · БИЛДЫ · ПОЗИЦИИ · ЧЕЛЛЕНДЖИ</p>
+        </div>
+
+        <div class="grid">
+            <button class="btn btn-combo" id="comboBtn">Связка</button>
+            <button class="btn btn-build" id="randomBuildBtn">Герой + Билд</button>
+            <button class="btn btn-position" id="positionBtn">Позиция</button>
+            <button class="btn btn-challenge" id="challengeBtn">Усложнение</button>
+            <button class="btn btn-random-all" id="randomAllBtn">🎲 ВСЁ ВМЕСТЕ</button>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <div class="result-title">Результат</div>
+            <div class="result-content" id="resultContent">
+                <span style="opacity:0.3; font-weight:400;">Нажми на кнопку выше</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  ★★★  БАЗА ДАННЫХ  ★★★
+        // ================================================================
+        const data = {
+            combos: [
+                { name: "Дуэт", heroes: "Io + Mars" },
+                { name: "Взрывная волна", heroes: "Tiny + Techies" },
+                { name: "Небесный суд", heroes: "Legion Commander + Skywrath Mage" },
+                { name: "Хищники", heroes: "Shadow Shaman + Ursa" },
+                { name: "Спящий кошмар", heroes: "Bane + Mirana" },
+                { name: "Тёмные силы", heroes: "Dark Seer + Spirit Breaker" },
+                { name: "Король и слуга", heroes: "Magnus + Sven" },
+                { name: "Морская угроза", heroes: "Naga Siren + Disruptor" },
+                { name: "Кровавая баня", heroes: "Pudge + Omniknight" },
+                { name: "Магический дуэт", heroes: "Rubick + Enigma" },
+                { name: "Духи войны", heroes: "Void Spirit + Ember Spirit" },
+                { name: "Морские волки", heroes: "Kunkka + Tidehunter" },
+                { name: "Ледяная буря", heroes: "Axe + Crystal Maiden" },
+                { name: "Танцоры смерти", heroes: "Juggernaut + Witch Doctor" },
+                { name: "Скрытая угроза", heroes: "Phantom Assassin + Magnus" },
+                { name: "Магический триумф", heroes: "Anti-Mage + Lion" },
+                { name: "Дальнобойщики", heroes: "Sniper + Clockwerk" },
+                { name: "Грозовой фронт", heroes: "Storm Spirit + Earthshaker" },
+                { name: "Космический порядок", heroes: "Invoker + Faceless Void" },
+                { name: "Гнев королевы", heroes: "Queen of Pain + Axe" },
+                { name: "Тени смерти", heroes: "Shadow Fiend + Elder Titan" },
+                { name: "Охотники", heroes: "Templar Assassin + Bounty Hunter" },
+                { name: "Ядовитый дуэт", heroes: "Viper + Venomancer" },
+                { name: "Некро-магия", heroes: "Necrophos + Pugna" },
+                { name: "Электрический шторм", heroes: "Death Prophet + Razor" },
+                { name: "Огненный дуэт", heroes: "Lina + Lion" },
+                { name: "Небесные молнии", heroes: "Zeus + Skywrath Mage" },
+                { name: "Тишина и хаос", heroes: "Puck + Silencer" },
+                { name: "Механический гений", heroes: "Tinker + Clockwerk" },
+                { name: "Хранители леса", heroes: "Nature's Prophet + Treant Protector" },
+                { name: "Вожаки стаи", heroes: "Beastmaster + Lycan" },
+                { name: "Призрачные воины", heroes: "Lone Druid + Warlock" },
+                { name: "Некроманты", heroes: "Visage + Chen" },
+                { name: "Лесные духи", heroes: "Enchantress + Furion" },
+                { name: "Каратели", heroes: "Crystal Maiden + Juggernaut" },
+                { name: "Кровавая жатва", heroes: "Lion + Phantom Assassin" },
+                { name: "Дикие звери", heroes: "Shadow Shaman + Troll Warlord" },
+                { name: "Знахари", heroes: "Witch Doctor + Ursa" },
+                { name: "Свет и тьма", heroes: "Dazzle + Huskar" },
+                { name: "Пророчество", heroes: "Oracle + Sven" },
+                { name: "Ледяной ужас", heroes: "Winter Wyvern + Faceless Void" },
+                { name: "Возрождение", heroes: "Phoenix + Void Spirit" },
+                { name: "Разрушители", heroes: "Earthshaker + Ember Spirit" },
+                { name: "Морской бой", heroes: "Tidehunter + Kunkka" },
+                { name: "Сила и магия", heroes: "Magnus + Sven" },
+                { name: "Тёмный лес", heroes: "Dark Seer + Juggernaut" },
+                { name: "Чёрная дыра", heroes: "Enigma + Phantom Assassin" },
+                { name: "Стальные тиски", heroes: "Clockwerk + Sniper" },
+                { name: "Боевой топор", heroes: "Axe + Invoker" },
+                { name: "Магический поединок", heroes: "Rubick + Invoker" },
+                { name: "Небесные стражи", heroes: "Skywrath Mage + Void Spirit" },
+                { name: "Огненный шторм", heroes: "Lina + Zeus" },
+                { name: "Духи природы", heroes: "Storm Spirit + Earth Spirit" },
+                { name: "Феи хаоса", heroes: "Puck + Ember Spirit" },
+                { name: "Взрывной хаос", heroes: "Techies + Pudge" },
+                { name: "Гиганты", heroes: "Tiny + Centaur Warrunner" },
+                { name: "Космические странники", heroes: "Io + Legion Commander" },
+                { name: "Огненный воин", heroes: "Huskar + Oracle" },
+                { name: "Кровавый след", heroes: "Bloodseeker + Ancient Apparition" },
+                { name: "Тараны", heroes: "Spirit Breaker + Bounty Hunter" },
+                { name: "Теневые убийцы", heroes: "Riki + Bounty Hunter" },
+                { name: "Невидимая угроза", heroes: "Clinkz + Weaver" },
+                { name: "Лунный свет", heroes: "Luna + Vengeful Spirit" },
+                { name: "Стрелы судьбы", heroes: "Drow Ranger + Vengeful Spirit" },
+                { name: "Ночные охотники", heroes: "Mirana + Bane" },
+                { name: "Ветреный дуэт", heroes: "Windranger + Phantom Assassin" },
+                { name: "Обезьянья игра", heroes: "Monkey King + Earth Spirit" },
+                { name: "Огненный шар", heroes: "Snapfire + Tiny" }
+            ],
+
+            challenges: [
+                "Не покупать BKB",
+                "Не использовать ульту до 25 минуты",
+                "Собрать все баунти в игре не пропустив ни одного",
+                "Не нажимать кнопку отмены способностей",
+                "Убить Рошана до 15 минуты",
+                "Закончить игру с 0 смертей",
+                "Нанести 50k+ урона по героям",
+                "Сделать рампагу только тычкой не способностями",
+                "Качать только плюсики",
+                "Не использовать TP до 10 минуты",
+                "Выиграть лайн не убив ни одного крипа на коре",
+                "Закончить игру с 20+ ассистами",
+                "Нанести 15k урона по постройкам",
+                "Не умирать до 10 минуты",
+                "Включить рандомную песню макана на повтор на всю катку",
+                "Не использовать способности 5 минут",
+                "Каждые 3 минуты убить хотя бы 1 типа",
+                "Играть без вардов",
+                "Не использовать курьера то есть самому ходить на фонтан",
+                "Играть без неитральных предметов",
+                "Ходить только во вражеском лесу, после смерти в течении минуты быть там",
+                "Умереть 5 раз до 10 минуты",
+                "Убить Рошана без артефактов",
+                "Фармить только крипов в лесу",
+                "Не фармить крипов 5 минут",
+                "Не использовать варды в лесу",
+                "Фармить только руны",
+                "Законтроллить каждую руну усиления в игре",
+                "Не использовать ульту вообще",
+                "Нанести 50к урона по героям",
+                "Нафармить 250 за 10 минут",
+                "Не использовать активные способности предметов",
+                "Не убивать геров на лайне",
+                "Зафармить 60 крипов за 5 минут",
+                "Законтроллить все свои алтари именно чтобы ты забрал",
+                "Закупаться только у вражеского фонтана",
+                "Покупать 1 тп раз в 1 минуту",
+                "Купить Dagon 5 уровня",
+                "Не использовать тп в первые 5 минут",
+
+                // НОВЫЕ УСЛОЖНЕНИЯ (30+)
+                "Умереть в каждой драке",
+                "Сделать 4 убийства за 1 минуту",
+                "Закончить игру с 10+ убийствами без единой смерти",
+                "Нанести 20к чистого урона (если выпал перс такой)",
+                "Нанести 20к физ урона",
+                "Выиграть лайн в соло",
+                "Зафармить 100 крипов к 15 минуте",
+                "Зафармить 200 крипов к 25 минуте",
+                "Сделать неитральный предмет в течении 30 секунд после его появления (любого уровня)",
+                "Активировать руну двойного урона 3 раза за игру",
+                "Активировать руну невидимости 3 раза за игру",
+                "Не использовать фонтан для лечения 10 минут",
+                "Не покупать расходники (тп фласки кларетки и тд)",
+                "Иметь 10 лвл на 12 минуте",
+                "Сделать 3 убийства на миду до 10 минуты",
+                "Убить вражеского мидера только способностями",
+                "Забрать сыр с рошана",
+                "Выиграть 3 тимфайта подряд без смертей",
+                "Закончить игру с 15+ ассистами и 0 убийств",
+                "Не дать врагу сломать ни одного вашего варда (на сапе)",
+                "Поставить 20 вардов за игру",
+                "Снять 15 вражеских вардов за игру",
+                "Не использовать смоки за всю игру",
+                "Использовать 5 смоков за игру",
+                "Убить врага под своим фонтаном",
+                "Сделать убийство врага на его фонтане",
+                "Убить Рошана 3 раза за игру",
+                "Забрать аванпост 5 раз за игру",
+                "Сделать ганг отряд вражескому мидеру и позвать четверых тимов на мид на 3 минуте, если не убьете то -1 шмотка на выбор",
+                "Разбить вторую шмотку из инвентаря на 21 минуте 35 секунде",
+                "Заденаить 100 крипов до 25 минуты",
+                "Нанести 10к урона по героям за 5 минут",
+                "Не использовать саппорт предметы (варды/смоки)",
+                "Замаксить третий скилл а все остальные вообще не вкачивать",
+                "Закончить игру без покупки одной из 6 вещей (пустой слот)",
+                "Играть включив порно на заднем фоне",
+                "Сказать своему саппорту что он теперь керри и самому покупать только варды",
+                "Заблочить 10 кемпов вражескому керри, а еще 3 своему",
+                "Сломать вышку на своем лайне до 10 минуты",
+                "Использовать способность 100 раз за игру, нужно считать самому",
+                "Нафармить 1400 золота за 2 минуты",
+                "Скупить все смоки и юзнуть за раз",
+                "Убить хотя раз за катку кого то иллюзией",
+                "Убить врага с расстояния 1500+",
+                "Разбить 4 шмотку из своего инвентаря на 35 минуте",
+                "Убить вражеского 7 раз за катку в лесу",
+                "Собрать 3 руны за 1 минуту",
+                "Сделать 5 стаков двух кемпов в тройке и сказать врагам чтобы зафармили",
+                "Получить 25 уровень первым на карте",
+                "Закончить игру без ассистов",
+                "Не улучшать способности до 6 уровня",
+                "Не использовать вторую способность 10 минут",
+                "Сделать 30 крипов за 1 минуту",
+                "байбекнутся после первой смерти, если нет денег то после следующей"
+            ],
+
+            items: [
+                "Boots of Speed", "Power Treads", "Phase Boots", "Arcane Boots",
+                "Magic Wand", "Bottle", "Urn of Shadows", "Spirit Vessel",
+                "Blink Dagger", "Force Staff", "Hurricane Pike", "Eul's Scepter",
+                "Aghanim's Scepter", "Aghanim's Shard", "Black King Bar", "Linken's Sphere",
+                "Manta Style", "Sange and Yasha", "Yasha and Kaya", "Kaya and Sange",
+                "Desolator", "Assault Cuirass", "Shiva's Guard", "Scythe of Vyse",
+                "Eye of Skadi", "Butterfly", "Daedalus", "Monkey King Bar",
+                "Radiance", "Battle Fury", "Mask of Madness", "Satanic",
+                "Heart of Tarrasque", "Bloodstone", "Aether Lens", "Glimmer Cape",
+                "Solar Crest", "Crimson Guard", "Pipe of Insight",
+                "Vladmir's Offering", "Wraith Band", "Null Talisman", "Bracer",
+                "Dagon", "Necronomicon", "Diffusal Blade", "Ethereal Blade",
+                "Armlet of Mordiggian", "Shadow Blade", "Silver Edge", "Crystalys",
+                "Blade Mail", "Mekansm", "Guardian Greaves", "Wraith Pact",
+                "Vanguard", "Abyssal Blade", "Skull Basher", "Heaven's Halberd",
+                "Soul Ring", "Tranquil Boots", "Boots of Travel", "Octarine Core",
+                "Bloodthorn", "Mjollnir", "Refresher Orb", "Wind Waker"
+            ]
+        };
+
+        // ================================================================
+        //  ★★★  МАППИНГ ГЕРОЕВ  ★★★
+        // ================================================================
+        const heroNameMap = {
+            'Io': 'io',
+            'Mars': 'mars',
+            'Tiny': 'tiny',
+            'Techies': 'techies',
+            'Legion Commander': 'legion_commander',
+            'Skywrath Mage': 'skywrath_mage',
+            'Shadow Shaman': 'shadow_shaman',
+            'Ursa': 'ursa',
+            'Bane': 'bane',
+            'Mirana': 'mirana',
+            'Dark Seer': 'dark_seer',
+            'Spirit Breaker': 'spirit_breaker',
+            'Magnus': 'magnus',
+            'Sven': 'sven',
+            'Naga Siren': 'naga_siren',
+            'Disruptor': 'disruptor',
+            'Pudge': 'pudge',
+            'Omniknight': 'omniknight',
+            'Rubick': 'rubick',
+            'Enigma': 'enigma',
+            'Void Spirit': 'void_spirit',
+            'Ember Spirit': 'ember_spirit',
+            'Kunkka': 'kunkka',
+            'Tidehunter': 'tidehunter',
+            'Axe': 'axe',
+            'Crystal Maiden': 'crystal_maiden',
+            'Juggernaut': 'juggernaut',
+            'Phantom Assassin': 'phantom_assassin',
+            'Anti-Mage': 'anti_mage',
+            'Sniper': 'sniper',
+            'Storm Spirit': 'storm_spirit',
+            'Invoker': 'invoker',
+            'Queen of Pain': 'queen_of_pain',
+            'Shadow Fiend': 'shadow_fiend',
+            'Elder Titan': 'elder_titan',
+            'Templar Assassin': 'templar_assassin',
+            'Bounty Hunter': 'bounty_hunter',
+            'Viper': 'viper',
+            'Venomancer': 'venomancer',
+            'Necrophos': 'necrophos',
+            'Pugna': 'pugna',
+            'Death Prophet': 'death_prophet',
+            'Razor': 'razor',
+            'Lina': 'lina',
+            'Lion': 'lion',
+            'Zeus': 'zeus',
+            'Puck': 'puck',
+            'Silencer': 'silencer',
+            'Tinker': 'tinker',
+            'Clockwerk': 'clockwerk',
+            "Nature's Prophet": 'natures_prophet',
+            'Treant Protector': 'treant_protector',
+            'Beastmaster': 'beastmaster',
+            'Lycan': 'lycan',
+            'Lone Druid': 'lone_druid',
+            'Warlock': 'warlock',
+            'Visage': 'visage',
+            'Chen': 'chen',
+            'Enchantress': 'enchantress',
+            'Furion': 'furion',
+            'Witch Doctor': 'witch_doctor',
+            'Dazzle': 'dazzle',
+            'Huskar': 'huskar',
+            'Oracle': 'oracle',
+            'Winter Wyvern': 'winter_wyvern',
+            'Phoenix': 'phoenix',
+            'Earthshaker': 'earthshaker',
+            'Earth Spirit': 'earth_spirit',
+            'Centaur Warrunner': 'centaur_warrunner',
+            'Ancient Apparition': 'ancient_apparition',
+            'Bloodseeker': 'bloodseeker',
+            'Riki': 'riki',
+            'Clinkz': 'clinkz',
+            'Weaver': 'weaver',
+            'Luna': 'luna',
+            'Vengeful Spirit': 'vengeful_spirit',
+            'Windranger': 'windranger',
+            'Monkey King': 'monkey_king',
+            'Snapfire': 'snapfire',
+            'Troll Warlord': 'troll_warlord',
+            'Pangolier': 'pangolier',
+            'Slark': 'slark',
+            'Phantom Lancer': 'phantom_lancer',
+            'Spectre': 'spectre',
+            'Lifestealer': 'lifestealer',
+            'Night Stalker': 'night_stalker',
+            'Doom': 'doom',
+            'Faceless Void': 'faceless_void'
+        };
+
+        // ================================================================
+        //  ★★★  МАППИНГ ПРЕДМЕТОВ  ★★★
+        // ================================================================
+        const itemNameMap = {
+            'Boots of Speed': 'boots',
+            'Power Treads': 'power_treads',
+            'Phase Boots': 'phase_boots',
+            'Arcane Boots': 'arcane_boots',
+            'Magic Wand': 'magic_wand',
+            'Bottle': 'bottle',
+            'Urn of Shadows': 'urn_of_shadows',
+            'Spirit Vessel': 'spirit_vessel',
+            'Blink Dagger': 'blink',
+            'Force Staff': 'force_staff',
+            'Hurricane Pike': 'hurricane_pike',
+            "Eul's Scepter": 'eul',
+            "Aghanim's Scepter": 'aghanims_scepter',
+            "Aghanim's Shard": 'aghanims_shard',
+            'Black King Bar': 'black_king_bar',
+            "Linken's Sphere": 'linkens_sphere',
+            'Manta Style': 'manta',
+            'Sange and Yasha': 'sange_and_yasha',
+            'Yasha and Kaya': 'yasha_and_kaya',
+            'Kaya and Sange': 'kaya_and_sange',
+            'Desolator': 'desolator',
+            'Assault Cuirass': 'assault',
+            "Shiva's Guard": 'shivas_guard',
+            'Scythe of Vyse': 'sheepstick',
+            'Eye of Skadi': 'skadi',
+            'Butterfly': 'butterfly',
+            'Daedalus': 'daedalus',
+            'Monkey King Bar': 'monkey_king_bar',
+            'Radiance': 'radiance',
+            'Battle Fury': 'battlefury',
+            'Mask of Madness': 'mask_of_madness',
+            'Satanic': 'satanic',
+            'Heart of Tarrasque': 'heart',
+            'Bloodstone': 'bloodstone',
+            'Aether Lens': 'aether_lens',
+            'Glimmer Cape': 'glimmer_cape',
+            'Solar Crest': 'solar_crest',
+            'Crimson Guard': 'crimson_guard',
+            'Pipe of Insight': 'pipe',
+            "Vladmir's Offering": 'vladmir',
+            'Wraith Band': 'wraith_band',
+            'Null Talisman': 'null_talisman',
+            'Bracer': 'bracer',
+            'Dagon': 'dagon',
+            'Necronomicon': 'necronomicon',
+            'Diffusal Blade': 'diffusal_blade',
+            'Ethereal Blade': 'ethereal_blade',
+            'Armlet of Mordiggian': 'armlet',
+            'Shadow Blade': 'shadow_blade',
+            'Silver Edge': 'silver_edge',
+            'Crystalys': 'crystalys',
+            'Blade Mail': 'blade_mail',
+            'Mekansm': 'mekansm',
+            'Guardian Greaves': 'guardian_greaves',
+            'Wraith Pact': 'wraith_pact',
+            'Vanguard': 'vanguard',
+            'Abyssal Blade': 'abyssal_blade',
+            'Skull Basher': 'basher',
+            "Heaven's Halberd": 'heavens_halberd',
+            'Soul Ring': 'soul_ring',
+            'Tranquil Boots': 'tranquil_boots',
+            'Boots of Travel': 'boots_of_travel',
+            'Octarine Core': 'octarine_core',
+            'Bloodthorn': 'bloodthorn',
+            'Mjollnir': 'mjollnir',
+            'Refresher Orb': 'refresher',
+            'Wind Waker': 'wind_waker'
+        };
+
+        // ================================================================
+        //  ★★★  ФУНКЦИИ  ★★★
+        // ================================================================
+
+        function randomItem(arr) {
+            if (!arr || arr.length === 0) return null;
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function getHeroImageUrl(heroName) {
+            const trimmed = heroName.trim();
+            let fileKey = heroNameMap[trimmed];
+            if (!fileKey) {
+                fileKey = trimmed.toLowerCase().replace(/\s+/g, '_');
+            }
+            return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${fileKey}.png`;
+        }
+
+        function getItemImageUrl(itemName) {
+            const trimmed = itemName.trim();
+            let fileKey = itemNameMap[trimmed];
+            if (!fileKey) {
+                fileKey = trimmed.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+            }
+            return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/${fileKey}.png`;
+        }
+
+        function parseCombo(comboStr) {
+            return comboStr.split(/\s*\+\s*/).map(s => s.trim()).filter(Boolean);
+        }
+
+        function renderHeroes(heroNames) {
+            if (!heroNames || heroNames.length === 0) return '';
+            let html = '<div class="heroes-row">';
+            heroNames.forEach(name => {
+                const imgUrl = getHeroImageUrl(name);
+                html += `
+                    <div class="hero-card">
+                        <img src="${imgUrl}" alt="${name}" loading="lazy" 
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2252%22 height=%2252%22%3E%3Crect width=%2252%22 height=%2252%22 fill=%22%23141c30%22/%3E%3Ctext x=%2226%22 y=%2232%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2220%22 font-family=%22sans-serif%22%3E${name.charAt(0)}%3C/text%3E%3C/svg%3E'" />
+                        <span class="hero-name">${name}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function getRandomBuild() {
+            const itemsWithoutShard = data.items.filter(item => item !== "Aghanim's Shard");
+            const shuffled = [...itemsWithoutShard].sort(() => 0.5 - Math.random());
+            const slots = shuffled.slice(0, 6);
+            const hasShard = Math.random() < 0.4;
+            return {
+                slots: slots,
+                shard: hasShard
+            };
+        }
+
+        function renderBuild(hero) {
+            const build = getRandomBuild();
+            const imgUrl = getHeroImageUrl(hero);
+
+            let html = `
+                <div class="build-hero-header">
+                    <img src="${imgUrl}" alt="${hero}" 
+                         onerror="this.style.display='none'" />
+                    <span class="hero-label">${hero}</span>
+                    <span class="build-label">— 6 слотов</span>
+                </div>
+            `;
+
+            if (build.slots.length > 0) {
+                html += `<div class="items-grid">`;
+                build.slots.forEach(item => {
+                    const itemImg = getItemImageUrl(item);
+                    html += `
+                        <span class="item-badge">
+                            <img src="${itemImg}" alt="${item}" loading="lazy" 
+                                 onerror="this.style.display='none'" />
+                            ${item}
+                        </span>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            if (build.shard) {
+                const shardImg = getItemImageUrl("Aghanim's Shard");
+                html += `
+                    <div style="margin-top:10px; display:flex; align-items:center; gap:8px; font-size:0.85rem; color:rgba(255,215,0,0.6);">
+                        <span style="font-weight:400;">➕ Бонус:</span>
+                        <span class="item-badge shard">
+                            <img src="${shardImg}" alt="Aghanim's Shard" loading="lazy" 
+                                 onerror="this.style.display='none'" />
+                            Aghanim's Shard
+                        </span>
+                        <span style="font-size:0.7rem; color:rgba(255,255,255,0.3);">(не занимает слот)</span>
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
+        function displayResult(htmlContent) {
+            document.getElementById('resultContent').innerHTML = htmlContent;
+        }
+
+        // ================================================================
+        //  ★★★  ОБРАБОТЧИКИ  ★★★
+        // ================================================================
+
+        document.getElementById('comboBtn').addEventListener('click', function() {
+            const combo = randomItem(data.combos);
+            if (!combo) {
+                displayResult('<span style="color:red;">Ошибка: нет связок в списке!</span>');
+                return;
+            }
+            const heroes = parseCombo(combo.heroes);
+            const heroCards = renderHeroes(heroes);
+            displayResult(`
+                <div class="section-title">Связка</div>
+                <div class="combo-name">${combo.name}</div>
+                ${heroCards}
+            `);
+        });
+
+        document.getElementById('randomBuildBtn').addEventListener('click', function() {
+            const heroPool = Object.keys(heroNameMap);
+            const hero = randomItem(heroPool);
+            if (!hero) {
+                displayResult('<span style="color:red;">Ошибка: нет героев в списке!</span>');
+                return;
+            }
+            const buildHtml = renderBuild(hero);
+            displayResult(buildHtml);
+        });
+
+        document.getElementById('positionBtn').addEventListener('click', function() {
+            const positions = [
+                { label: 'Керри (Pos 1)', emoji: '🥇' },
+                { label: 'Мид (Pos 2)', emoji: '🥈' },
+                { label: 'Оффлейнер (Pos 3)', emoji: '🥉' },
+                { label: 'Четверка (Pos 4)', emoji: '🟦' },
+                { label: 'Пятерка (Pos 5)', emoji: '🟥' }
+            ];
+            const pos = randomItem(positions);
+            displayResult(`
+                <div class="section-title">Позиция</div>
+                <div class="position-display">${pos.emoji}  ${pos.label}</div>
+            `);
+        });
+
+        document.getElementById('challengeBtn').addEventListener('click', function() {
+            const challenge = randomItem(data.challenges);
+            if (!challenge) {
+                displayResult('<span style="color:red;">Ошибка: нет усложнений в списке!</span>');
+                return;
+            }
+            displayResult(`
+                <div class="section-title">Усложнение</div>
+                <div>${challenge}</div>
+            `);
+        });
+
+        document.getElementById('randomAllBtn').addEventListener('click', function() {
+            const heroPool = Object.keys(heroNameMap);
+            const hero = randomItem(heroPool);
+            if (!hero) {
+                displayResult('<span style="color:red;">Ошибка: нет героев в списке!</span>');
+                return;
+            }
+            
+            const build = getRandomBuild();
+            const imgUrl = getHeroImageUrl(hero);
+
+            const positions = [
+                { label: 'Керри (Pos 1)', emoji: '🥇' },
+                { label: 'Мид (Pos 2)', emoji: '🥈' },
+                { label: 'Оффлейнер (Pos 3)', emoji: '🥉' },
+                { label: 'Четверка (Pos 4)', emoji: '🟦' },
+                { label: 'Пятерка (Pos 5)', emoji: '🟥' }
+            ];
+            const pos = randomItem(positions);
+            const challenge = randomItem(data.challenges);
+
+            let itemsHtml = '';
+            if (build.slots.length > 0) {
+                itemsHtml = `<div class="items-grid">`;
+                build.slots.forEach(item => {
+                    const itemImg = getItemImageUrl(item);
+                    itemsHtml += `
+                        <span class="item-badge">
+                            <img src="${itemImg}" alt="${item}" loading="lazy" 
+                                 onerror="this.style.display='none'" />
+                            ${item}
+                        </span>
+                    `;
+                });
+                itemsHtml += `</div>`;
+            }
+
+            let shardHtml = '';
+            if (build.shard) {
+                const shardImg = getItemImageUrl("Aghanim's Shard");
+                shardHtml = `
+                    <div style="margin-top:10px; display:flex; align-items:center; gap:8px; font-size:0.85rem; color:rgba(255,215,0,0.6);">
+                        <span style="font-weight:400;">➕ Бонус:</span>
+                        <span class="item-badge shard">
+                            <img src="${shardImg}" alt="Aghanim's Shard" loading="lazy" 
+                                 onerror="this.style.display='none'" />
+                            Aghanim's Shard
+                        </span>
+                        <span style="font-size:0.7rem; color:rgba(255,255,255,0.3);">(не занимает слот)</span>
+                    </div>
+                `;
+            }
+
+            displayResult(`
+                <div style="margin-bottom:12px;">
+                    <div class="section-title">Герой + Билд</div>
+                    <div class="build-hero-header" style="margin-bottom:8px;">
+                        <img src="${imgUrl}" alt="${hero}" onerror="this.style.display='none'" style="width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);background:#141c30;object-fit:cover;flex-shrink:0;" />
+                        <span style="font-size:1.2rem;font-weight:600;color:#f0f4ff;">${hero}</span>
+                    </div>
+                    ${itemsHtml}
+                    ${shardHtml}
+                </div>
+
+                <hr class="result-divider" />
+
+                <div style="margin-bottom:12px;">
+                    <div class="section-title">Позиция</div>
+                    <div class="position-display">${pos.emoji}  ${pos.label}</div>
+                </div>
+
+                <hr class="result-divider" />
+
+                <div>
+                    <div class="section-title">Усложнение</div>
+                    <div>${challenge}</div>
+                </div>
+            `);
+        });
+
+        console.log('✅ Dota Random загружен!');
+        console.log('📦 Количество связок:', data.combos.length);
+        console.log('📦 Количество усложнений:', data.challenges.length);
+        console.log('📦 Количество предметов:', data.items.length);
+    </script>
+
+</body>
+</html>
